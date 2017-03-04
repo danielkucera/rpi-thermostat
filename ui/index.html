@@ -12,15 +12,33 @@
 <div class="container-fluid" style="width:240px">
 
 <div>
-<p><h1>{{state.desired}}</h1></p>
-<p>{{state.current == "0" ? "Sensor Offline" : state.current }}</p>
+<p><h1>{{state.tempcur}}</h1></p>
+<p>Max: {{ state.temphi }} <br>
+Min: {{ state.templow }}</p>
 </div>
 
 <div>
-<button class="btn btn-default btn-lg" ng-click="changeDesired(1)">
+<p>Change temp:</p>
+<button class="btn btn-default btn-md" ng-click="changeLow(0.1)">
 <span class="glyphicon glyphicon-chevron-up"></span>
 </button>
-<button class="btn btn-default btn-lg" ng-click="changeDesired(-1)">
+<button class="btn btn-default btn-lg" ng-click="changeLow(1)">
+<span class="glyphicon glyphicon-chevron-up"></span>
+</button>
+<button class="btn btn-default btn-lg" ng-click="changeLow(-0.1)">
+<span class="glyphicon glyphicon-chevron-down"></span>
+</button>
+<button class="btn btn-default btn-md" ng-click="changeLow(-1)">
+<span class="glyphicon glyphicon-chevron-down"></span>
+</button>
+</div>
+
+<div>
+<p>Change diff:</p>
+<button class="btn btn-default btn-md" ng-click="changeHi(0.1)">
+<span class="glyphicon glyphicon-chevron-up"></span>
+</button>
+<button class="btn btn-default btn-md" ng-click="changeHi(-0.1)">
 <span class="glyphicon glyphicon-chevron-down"></span>
 </button>
 </div>
@@ -29,19 +47,7 @@
 <div>System</div>
 <div class="btn-group" role="group">
 <button ng-class="{'active': state.sysmode == 'off'}" class="btn btn-default btn-lg" ng-click="setSystemMode('off')">Off</button>
-<button ng-class="{'active': state.sysmode == 'cool'}" class="btn btn-default btn-lg" ng-click="setSystemMode('cool')">Cool</button>
-<button ng-class="{'active': state.sysmode == 'heat'}" class="btn btn-default btn-lg" ng-click="setSystemMode('heat')">Heat</button>
 </div>
-</div>
-
-<div style="margin-top:10px">
-<div>Fan</div>
-<div class="btn-group" role="group">
-<button ng-class="{'active': state.fanmode == 'auto'}" class="btn btn-default btn-lg" ng-click="setFanMode('auto')">Auto</button>
-<button ng-class="{'active': state.fanmode == 'on'}" class="btn btn-default btn-lg" ng-click="setFanMode('on')">On</button>
-</div>
-</div>
-
 </div>
 
 </body>
@@ -56,18 +62,13 @@ thermostat.controller("ThermostatCtrl", ["$scope", "$resource", "$interval", fun
 	var State = $resource(window.location.protocol + "//" + window.location.host + "/api/", {}, {query: {isArray: false}});
 	$scope.state = State.query();
 
-	$scope.setSystemMode = function(mode) {
-		$scope.state.sysmode = mode
-		console.log($scope.state.$save());
-	}
-	
-	$scope.setFanMode = function(mode) {
-		$scope.state.fanmode = mode
+	$scope.changeLow = function(change) {
+		$scope.state.templow = $scope.state.templow + change;
+		$scope.state.temphi = $scope.state.temphi + change;
 		$scope.state.$save();
 	}
-	
-	$scope.changeDesired = function(change) {
-		$scope.state.desired = $scope.state.desired + change;
+	$scope.changeHi = function(change) {
+		$scope.state.temphi = $scope.state.temphi + change;
 		$scope.state.$save();
 	}
 }]);
