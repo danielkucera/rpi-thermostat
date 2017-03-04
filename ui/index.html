@@ -13,8 +13,7 @@
 
 <div>
 <p><h1>{{state.tempcur}}</h1></p>
-<p>Max: {{ state.temphi }} <br>
-Min: {{ state.templow }}</p>
+<p>Min: {{ state.templow }}</p>
 </div>
 
 <div>
@@ -25,16 +24,17 @@ Min: {{ state.templow }}</p>
 <button class="btn btn-default btn-lg" ng-click="changeLow(1)">
 <span class="glyphicon glyphicon-chevron-up"></span>
 </button>
-<button class="btn btn-default btn-lg" ng-click="changeLow(-0.1)">
+<button class="btn btn-default btn-lg" ng-click="changeLow(-1)">
 <span class="glyphicon glyphicon-chevron-down"></span>
 </button>
-<button class="btn btn-default btn-md" ng-click="changeLow(-1)">
+<button class="btn btn-default btn-md" ng-click="changeLow(-0.1)">
 <span class="glyphicon glyphicon-chevron-down"></span>
 </button>
 </div>
 
 <div>
-<p>Change diff:</p>
+<p>Max: {{ state.temphi }} <br>
+Change diff:</p>
 <button class="btn btn-default btn-md" ng-click="changeHi(0.1)">
 <span class="glyphicon glyphicon-chevron-up"></span>
 </button>
@@ -63,12 +63,12 @@ thermostat.controller("ThermostatCtrl", ["$scope", "$resource", "$interval", fun
 	$scope.state = State.query();
 
 	$scope.changeLow = function(change) {
-		$scope.state.templow = $scope.state.templow + change;
-		$scope.state.temphi = $scope.state.temphi + change;
+		$scope.state.templow = Math.round(($scope.state.templow + change)*10)/10;
+		$scope.state.temphi = Math.round(($scope.state.temphi + change)*10)/10;
 		$scope.state.$save();
 	}
 	$scope.changeHi = function(change) {
-		$scope.state.temphi = $scope.state.temphi + change;
+		$scope.state.temphi = Math.round(($scope.state.temphi + change)*10)/10;
 		$scope.state.$save();
 	}
 }]);
