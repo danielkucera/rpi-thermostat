@@ -9,45 +9,43 @@
 </head>
 <body ng-controller="ThermostatCtrl">
 
-<div class="container-fluid" style="width:240px">
+<div class="container-fluid" style="width:360px">
 
 <div>
-<p><h1>{{state.tempcur}}</h1></p>
-<p>Min: {{ state.templow }}</p>
+<p><h1>{{state.tempcur}} &deg;C</h1></p>
+<p><h1>Heating {{ state.heatingon == 1 ? "On" : "Off" }}</h1></p>
+<p>Updated: {{state.updatedat}}</h1></p>
+<a href="http://zabbix.danman.eu/charts.php?graphid=1019">
+<img width="100%" src="http://zabbix.danman.eu/chart2.php?graphid=1019&period=108000">
+</a>
 </div>
 
-<div>
-<p>Change temp:</p>
-<button class="btn btn-default btn-md" ng-click="changeLow(0.1)">
-<span class="glyphicon glyphicon-chevron-up"></span>
-</button>
-<button class="btn btn-default btn-lg" ng-click="changeLow(1)">
-<span class="glyphicon glyphicon-chevron-up"></span>
+<p><h1>Settings</h1></p>
+<p>Min trigger: {{ state.templow }} &deg;C</p>
+<p>
+<button class="btn btn-default btn-md" ng-click="changeLow(-0.1)">
+<span class="glyphicon glyphicon-chevron-down"></span>
 </button>
 <button class="btn btn-default btn-lg" ng-click="changeLow(-1)">
 <span class="glyphicon glyphicon-chevron-down"></span>
 </button>
-<button class="btn btn-default btn-md" ng-click="changeLow(-0.1)">
-<span class="glyphicon glyphicon-chevron-down"></span>
-</button>
-</div>
-
-<div>
-<p>Max: {{ state.temphi }} <br>
-Change diff:</p>
-<button class="btn btn-default btn-md" ng-click="changeHi(0.1)">
+<button class="btn btn-default btn-lg" ng-click="changeLow(1)">
 <span class="glyphicon glyphicon-chevron-up"></span>
 </button>
-<button class="btn btn-default btn-md" ng-click="changeHi(-0.1)">
+<button class="btn btn-default btn-md" ng-click="changeLow(0.1)">
+<span class="glyphicon glyphicon-chevron-up"></span>
+</button>
+</p>
+
+<div>
+<p>Max trigger: {{ state.temphi }} &deg;C<br>
+Change diff:</p>
+<button class="btn btn-default btn-sm" ng-click="changeHi(-0.1)">
 <span class="glyphicon glyphicon-chevron-down"></span>
 </button>
-</div>
-
-<div style="margin-top:10px">
-<div>System</div>
-<div class="btn-group" role="group">
-<button ng-class="{'active': state.sysmode == 'off'}" class="btn btn-default btn-lg" ng-click="setSystemMode('off')">Off</button>
-</div>
+<button class="btn btn-default btn-sm" ng-click="changeHi(0.1)">
+<span class="glyphicon glyphicon-chevron-up"></span>
+</button>
 </div>
 
 </body>

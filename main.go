@@ -2,36 +2,32 @@ package main
 
 import (
 	"encoding/json"
-	"time"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"net"
+	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
-	"fmt"
-	"os"
 	"strings"
+	"time"
 )
 
 // API
 
-var templow float64
-var temphi  float64
-var tempcur float64
-
-var heating int
-
 type Thermostat struct {
-	TempLow   float64    `json:"templow"`
-	TemoHi    float64    `json:"temphi"`
-	TemoCur   float64    `json:"tempcur"`
+	TempLow   float64   `json:"templow"`
+	TempHi    float64   `json:"temphi"`
+	TempCur   float64   `json:"tempcur"`
+	UpdatedAt time.Time `json:"updatedat"`
+	HeatingOn int       `json:"heatingon"`
 }
 
 type Settings struct {
 	Thermostat
-	RelayHost		string
-	ListenOn		string
+	RelayHost string
+	ListenOn  string
 }
 
 var settings Settings
@@ -46,13 +42,13 @@ func getCur() (float64, error) {
 	f, err := strconv.ParseFloat(strings.TrimSpace(string(out)), 64)
 	if err != nil {
 		log.Println(err)
-		return 0, err		
+		return 0, err
 	}
 
 	return f, nil
 }
 
-func setHeating(val int){
+func setHeating(val int) {
 	conn, err := net.Dial("tcp", settings.RelayHost)
 	if err != nil {
 		log.Println(err)
@@ -63,22 +59,23 @@ func setHeating(val int){
 	conn.Close()
 }
 
-func controlLoop(){
+func controlLoop() {
 	for true {
-		t,err := getCur()
+		t, err := getCur()
 		if err == nil {
-			tempcur = t
+			settings.TempCur = t
+			settings.UpdatedAt = time.Now()
 		}
 
-		if tempcur > temphi {
-			heating = 0
+		if settings.TempCur > settings.TempHi {
+			settings.HeatingOn = 0
 		}
 
-		if tempcur < templow {
-			heating = 1
+		if settings.TempCur < settings.TempLow {
+			settings.HeatingOn = 1
 		}
 
-		go setHeating(heating)
+		go setHeating(settings.HeatingOn)
 
 		time.Sleep(10 * time.Second)
 	}
@@ -96,8 +93,8 @@ func updateHandler(r *http.Request) int {
 		return http.StatusBadRequest
 	}
 
-	templow = t.TempLow
-	temphi = t.TemoHi
+	settings.TempLow = t.TempLow
+	settings.TempHi = t.TempHi
 
 	writeSettingsFile()
 
@@ -116,7 +113,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		code = http.StatusNotImplemented
 	}
 
-	response := Thermostat{templow, temphi, tempcur}
+	response := settings
 	json, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "Error marshalling JSON", http.StatusInternalServerError)
@@ -132,51 +129,45 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readSettingsFile() error {
-    settingsFile, err := os.Open("settings.json")
-    if err != nil {
-            return fmt.Errorf("settings.json file not found, using defaults")
-    }
+	settingsFile, err := os.Open("settings.json")
+	if err != nil {
+		return fmt.Errorf("settings.json file not found, using defaults")
+	}
 
-    if err = json.NewDecoder(settingsFile).Decode(&settings); err != nil {
-            return err
-    }
+	if err = json.NewDecoder(settingsFile).Decode(&settings); err != nil {
+		return err
+	}
 
-    temphi = settings.TemoHi
-    templow = settings.TempLow
-    settingsFile.Close()
-    return nil
+	settingsFile.Close()
+	return nil
 }
 
 func writeSettingsFile() error {
-    settingsFile, err := os.Create("settings.json")
-    if err != nil {
-            return err
-    }
-    defer settingsFile.Close()
+	settingsFile, err := os.Create("settings.json")
+	if err != nil {
+		return err
+	}
+	defer settingsFile.Close()
 
-    settings.TempLow = templow
-    settings.TemoHi = temphi
-
-    output, err := json.Marshal(settings)
-    if err != nil {
-            return err
-    }
-    _, err = settingsFile.Write(output)
-    if err != nil {
-            return err
-    }
-    return nil
+	output, err := json.Marshal(settings)
+	if err != nil {
+		return err
+	}
+	_, err = settingsFile.Write(output)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-
 func main() {
-    err := readSettingsFile()
-    if err != nil {
-            log.Printf("WARNING: %s", err)
-    }
-    defer writeSettingsFile()
+	err := readSettingsFile()
+	if err != nil {
+		log.Printf("WARNING: %s", err)
+	}
+	defer writeSettingsFile()
 
-    tempcur = 99
+	settings.TempCur = 99
 
 	go controlLoop()
 

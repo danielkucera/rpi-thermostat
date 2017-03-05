@@ -1,1 +1,1 @@
-{"templow":25.1,"temphi":26.6,"tempcur":0,"RelayHost":"192.168.0.192:3333","ListenOn":":8080"}
+{"templow":23.3,"temphi":23.7,"tempcur":23.9,"updatedat":"2017-03-05T08:21:15.143582926+01:00","heatingon":0,"RelayHost":"192.168.0.192:3333","ListenOn":":8081"}
