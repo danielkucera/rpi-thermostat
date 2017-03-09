@@ -18,7 +18,7 @@ import (
 
 type Thermostat struct {
 	TempLow   float64   `json:"templow"`
-	TempHi    float64   `json:"temphi"`
+	TempDiff  float64   `json:"tempdiff"`
 	TempCur   float64   `json:"tempcur"`
 	UpdatedAt time.Time `json:"updatedat"`
 	HeatingOn int       `json:"heatingon"`
@@ -67,7 +67,7 @@ func controlLoop() {
 			settings.UpdatedAt = time.Now()
 		}
 
-		if settings.TempCur > settings.TempHi {
+		if settings.TempCur > settings.TempLow + settings.TempDiff {
 			settings.HeatingOn = 0
 		}
 
@@ -94,7 +94,7 @@ func updateHandler(r *http.Request) int {
 	}
 
 	settings.TempLow = t.TempLow
-	settings.TempHi = t.TempHi
+	settings.TempDiff = t.TempDiff
 
 	writeSettingsFile()
 

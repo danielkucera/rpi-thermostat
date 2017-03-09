@@ -38,12 +38,11 @@
 </p>
 
 <div>
-<p>Max trigger: {{ state.temphi }} &deg;C<br>
-Change diff:</p>
-<button class="btn btn-default btn-sm" ng-click="changeHi(-0.1)">
+<p>Max trigger: +{{ state.tempdiff }} &deg;C</p>
+<button class="btn btn-default btn-sm" ng-click="changeDiff(-0.1)">
 <span class="glyphicon glyphicon-chevron-down"></span>
 </button>
-<button class="btn btn-default btn-sm" ng-click="changeHi(0.1)">
+<button class="btn btn-default btn-sm" ng-click="changeDiff(0.1)">
 <span class="glyphicon glyphicon-chevron-up"></span>
 </button>
 </div>
@@ -62,11 +61,14 @@ thermostat.controller("ThermostatCtrl", ["$scope", "$resource", "$interval", fun
 
 	$scope.changeLow = function(change) {
 		$scope.state.templow = Math.round(($scope.state.templow + change)*10)/10;
-		$scope.state.temphi = Math.round(($scope.state.temphi + change)*10)/10;
 		$scope.state.$save();
 	}
-	$scope.changeHi = function(change) {
-		$scope.state.temphi = Math.round(($scope.state.temphi + change)*10)/10;
+	$scope.changeDiff = function(change) {
+		newdiff = Math.round(($scope.state.tempdiff + change)*10)/10;
+		if (newdiff < 0.1) {
+			newdiff = 0.1;
+		}
+		$scope.state.tempdiff = newdiff;
 		$scope.state.$save();
 	}
 }]);
