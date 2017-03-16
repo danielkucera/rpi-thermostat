@@ -21,6 +21,12 @@
 </div>
 
 <p><h1>Settings</h1></p>
+<div>
+<p>Toggle heating</p>
+<button class="btn btn-default btn-lg" ng-click="toggleHeating(1)">On</button>
+<button class="btn btn-default btn-lg" ng-click="toggleHeating(0)">Off</button>
+</div>
+
 <p>Min trigger: {{ state.templow }} &deg;C</p>
 <p>
 <button class="btn btn-default btn-md" ng-click="changeLow(-0.1)">
@@ -69,6 +75,10 @@ thermostat.controller("ThermostatCtrl", ["$scope", "$resource", "$interval", fun
 			newdiff = 0.1;
 		}
 		$scope.state.tempdiff = newdiff;
+		$scope.state.$save();
+	}
+	$scope.toggleHeating = function(change) {
+		$scope.state.heatingon = change;
 		$scope.state.$save();
 	}
 }]);

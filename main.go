@@ -95,6 +95,7 @@ func updateHandler(r *http.Request) int {
 
 	settings.TempLow = t.TempLow
 	settings.TempDiff = t.TempDiff
+	settings.HeatingOn = t.HeatingOn
 
 	writeSettingsFile()
 
@@ -168,6 +169,7 @@ func main() {
 	defer writeSettingsFile()
 
 	settings.TempCur = 99
+	settings.HeatingOn = 0
 
 	go controlLoop()
 
